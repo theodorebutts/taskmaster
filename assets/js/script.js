@@ -1,7 +1,6 @@
 var tasks = {};
 
 var createTask = function(taskText, taskDate, taskList) {
-  // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
   var taskSpan = $("<span>")
     .addClass("badge badge-primary badge-pill")
@@ -10,18 +9,15 @@ var createTask = function(taskText, taskDate, taskList) {
     .addClass("m-1")
     .text(taskText);
 
-  // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
 
-  // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
 };
 
 var loadTasks = function() {
   tasks = JSON.parse(localStorage.getItem("tasks"));
 
-  // if nothing in localStorage, create a new object to track all task status arrays
   if (!tasks) {
     tasks = {
       toDo: [],
@@ -31,10 +27,7 @@ var loadTasks = function() {
     };
   }
 
-  // loop over object properties
   $.each(tasks, function(list, arr) {
-    console.log(list, arr);
-    // then loop over sub-array
     arr.forEach(function(task) {
       createTask(task.text, task.date, list);
     });
@@ -119,6 +112,61 @@ $(".list-group").on("blur", "input[type='text']", function() {
     .text(date);
 
   $(this).replaceWith(taskSpan);
+});
+
+$(".card .list-group").sortable({
+  connectWith: $(".card .list-group"),
+  scroll: false,
+  tolerance: "pointer",
+  helper: "clone",
+  activate: function(event) {
+  },
+  deactivate: function(event) {
+  },
+  over: function(event) {
+  },
+  out: function(event) {
+  },
+  update: function(event) {
+    var tempArr = [];
+
+    $(this).children().each(function() {
+      var text = $(this)
+        .find("p")
+        .text()
+        .trim();
+
+      var date = $(this)
+        .find("span")
+        .text()
+        .trim();
+
+      tempArr.push({
+        text: text,
+        date: date
+      });
+    });
+
+    var arrName = $(this)
+    .attr("id")
+    .replace("list-", "");
+
+    tasks[arrName] = tempArr;
+    saveTasks();
+  }
+});
+
+$("#trash").droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();
+  },
+  over: function(event, ui) {
+  },
+  out: function(event, ui) {
+  }
+  
 });
 
 // modal was triggered
