@@ -103,7 +103,6 @@ $(".list-group").on("change", "input[type='text']", function() {
   var taskSpan = $("<span>").addClass("badge badge-primary badge-pill").text(date);
   $(this).replaceWith(taskSpan);
 
-  // Pass task's <li> element into auditTask() to check new due date
   auditTask($(taskSpan).closest(".list-group-item"));
 });
 
@@ -113,12 +112,18 @@ $(".card .list-group").sortable({
   tolerance: "pointer",
   helper: "clone",
   activate: function(event) {
+    $(this).addClass("dropover"),
+    $("bottom-trash").addClass("bottom-trash-drag");
   },
   deactivate: function(event) {
+    $(this).removeClass("dropover"),
+    $("bottom-trash").removeClass("bottom-trash-drag")
   },
   over: function(event) {
+    $(event.target).addClass("dropover-active");
   },
   out: function(event) {
+    $(event.target).removeClass("dropover-active");
   },
   update: function(event) {
     var tempArr = [];
@@ -156,8 +161,10 @@ $("#trash").droppable({
     ui.draggable.remove();
   },
   over: function(event, ui) {
+    $("bottom-trash").addClass("bottom-trash-active");
   },
   out: function(event, ui) {
+    $("bottom-trash").removeClass("bottom-trash-active");
   }
   
 });
@@ -182,6 +189,12 @@ $("#modalDueDate").datepicker({
   minDate: 1
 });
 
+
+setInterval(function () {
+  $(".card .list-group-item").each(function (el) {
+    auditTask(el);
+  });
+}, (1000 * 60) * 30);
 
 // 
 $("#task-form-modal").on("show.bs.modal", function() {
